@@ -15,27 +15,37 @@ def get_input(url, session_cookie):
         print(f"An error occurred: {e}")
     return None
 
+def is_sorted_with_one_removed(levels):
+    """
+    Checks if the list is sorted (increasing or decreasing)
+    when one element is removed.
+    """
+    for i in range(len(levels)):
+        temp_levels = levels[:i] + levels[i+1:]  # Remove one element
+        if temp_levels == sorted(temp_levels) or temp_levels == sorted(temp_levels, reverse=True):
+            return True
+    return False
+
 def is_safe(levels):
     """
-    Checks if the levels are:
-    either increasing or decreasing
-    have a difference between adjacent entries of 1-3
+    Checks if the levels are safe based on the rules:
+    - Either increasing or decreasing with one removal allowed
+    - Differences between adjacent entries are 1-3 with one failure allowed
     """
-    # Check if the list is increasing or decreasing
-    is_increasing_or_decreasing = levels == sorted(levels) or levels == sorted(levels, reverse=True)
+    # Check if levels are sorted or can become sorted with one removal
+    is_increasing_or_decreasing = levels == sorted(levels) or levels == sorted(levels, reverse=True) or is_sorted_with_one_removed(levels)
 
-    # Check for adjacent differences
-    diffs_within_range = True
+    # Check for adjacent differences, allowing one failure
+    bad_level_count = 0
     for i in range(len(levels) - 1):
         diff = abs(levels[i + 1] - levels[i])
-        # Check if out of range
-        if diff < 1 or diff > 3:  
-            diffs_within_range = False
-            break
+        if diff < 1 or diff > 3:  # Difference out of range
+            bad_level_count += 1
+            if bad_level_count > 1:  # More than one failure
+                return False
 
-    # Return True only if both conditions are met
-    return is_increasing_or_decreasing and diffs_within_range
-
+    # Safe if both conditions are met
+    return is_increasing_or_decreasing
 
 
 # URL and session cookie for fetching input
